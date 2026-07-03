@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Drive Like</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+            margin: 40px;
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #000000;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px #3f3f3fe1;
+        }
+
+        h2 {
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .upload-section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #000000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #2f2f2fcf;
+        }
+
+        .btn-delete {
+            background-color: #ffff00;
+            color: #000000;
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .btn-delete:hover {
+            background-color: #a6a600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ffffff;
+            text-align: left;
+        }
+
+        th {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .table-container {
+            background: #000000;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px #3f3f3fe1;
+            margin-top: 30px;
+        }
+
+        tr:hover {
+            background-color: #2f2f2fcf;
+        }
+
+        .swal2-title {
+            border-bottom: none !important;
+        }
+
+        input[type="file"] {
+            color: transparent;
+            width: 140px;
+        }
+
+        input[type="file"]::file-selector-button {
+            background-color: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background-color: #2f2f2fcf;
+        }
+
+        #uploadForm {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #selectedFileName {
+            color: #000000;
+            font-size: 15px;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        #cop-butonu {
+            padding: 8px 16px;
+            background-color: #ffff00;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+
+        }
+
+        #cop-butonu:hover {
+            background-color: #a6a600;
+
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Drive'ım</h2>
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <button onclick="dosyalarımbutonu()" style="padding: 8px 16px; cursor: pointer; border-radius: 5px;"><i
+                    class="fa-solid fa-folder-open"></i>Dosyalarım</button>
+            <button id="cop-butonu" onclick="copKutusubutonu()"><i class="fa-solid fa-trash-can"></i>Çöp
+                Kutusu</button>
+        </div>
+
+        <div id="driveAlani">
+
+            <div class="upload-section">
+                <form id="uploadForm" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+
+                    <button type="button" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-file"></i> Dosyaları Seç
+                    </button>
+
+                    <button type="button" onclick="document.getElementById('folderInput').click()">
+                        <i class="fa-solid fa-folder"></i> Klasörleri Seç
+                    </button>
+
+                    <input type="file" id="fileInput" name="files" multiple style="display: none;">
+                    <input type="file" id="folderInput" name="folders" webkitdirectory multiple style="display: none;">
+
+                    <button type="button" onclick="yeniklasor()" style="background-color: #000000;">
+                        <i class="fa-solid fa-folder-plus"></i> Klasör Oluştur
+                    </button>
+
+                    <button type="submit" id="submitBtn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Yükle
+                    </button>
+
+                    <span id="selectedFileName" style="font-style: italic; font-weight: 500;"></span>
+
+                </form>
+            </div>
+            <div class="table-container">
+                <h3><i class="fas fa-download"></i> Yüklü Dosyalarım</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dosya Adı</th>
+                            <th>Boyut (KB)</th>
+                            <th>Yüklenme Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileTableBody">
+                        <tr>
+                            <td colspan="4">Dosyalar yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="copKutusuAlani" style="display: none;">
+
+            <div class="table-container">
+                <h3><i class="fas fa-bin"></i> Çöp Kutusu</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dosya Adı</th>
+                            <th>Silinme Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="binTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+    <script>
+        window.onload = function () {
+            dosyalariGetir();
+        };
+        const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
+        const fileNameSpan = document.getElementById('selectedFileName');
+
+        fileInput.addEventListener('change', function (event) {
+            folderInput.value = '';
+            const fileList = event.target.files;
+
+            if (fileList.length === 1) {
+                fileNameSpan.textContent = fileList[0].name;
+            } else if (fileList.length > 1) {
+                fileNameSpan.textContent = fileList.length + " dosya seçildi";
+            } else {
+                fileNameSpan.textContent = "";
+            }
+        });
+
+        folderInput.addEventListener('change', function (event) {
+            fileInput.value = '';
+            const fileList = event.target.files;
+
+            if (fileList.length > 0) {
+                const klasorYolu = fileList[0].webkitRelativePath;
+                const klasorAdi = klasorYolu.split('/')[0]
+                fileNameSpan.textContent = klasorAdi + " (" + fileList.length + " dosya)";
+            } else {
+                fileNameSpan.textContent = "";
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData();
+
+            let secilenDosyalar = fileInput.files.length > 0 ? fileInput.files : folderInput.files;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (secilenDosyalar.length === 0) {
+                submitBtn.setCustomValidity('Lütfen yüklenecek bir dosya veya klasör seçin.');
+                submitBtn.reportValidity();
+                return;
+            } else {
+                submitBtn.setCustomValidity('');
+            }
+
+            if (aktifKlasor !== "") {
+                formData.append("mevcutKlasoreEkle", "true");
+            } else {
+                formData.append("mevcutKlasoreEkle", "false");
+            }
+
+            for (let i = 0; i < secilenDosyalar.length; i++) {
+                formData.append("files", secilenDosyalar[i]);
+
+                let yol = secilenDosyalar[i].webkitRelativePath || "";
+                if (aktifKlasor !== "") {
+                    if (yol === "") {
+                        yol = aktifKlasor + "/" + secilenDosyalar[i].name;
+                    } else {
+                        yol = aktifKlasor + "/" + yol;
+                    }
+                }
+
+                formData.append("paths", yol);
+            }
+
+            fetch('/api/files/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.text())
+                .then(mesaj => {
+                    Swal.fire({ title: 'Başarılı!', text: mesaj, icon: 'success', confirmButtonColor: '#000000' });
+                    fileInput.value = '';
+                    folderInput.value = '';
+                    fileNameSpan.textContent = '';
+                    dosyalariGetir();
+                })
+                .catch(error => {
+                    console.error('Yükleme hatası:', error);
+                    Swal.fire({ title: 'Hata!', text: 'Dosya yüklenirken bir hata oluştu!', icon: 'error', confirmButtonColor: '#000000' });
+                });
+        });
+        let tumDosyalar = [];
+        let aktifKlasor = "";
+
+        function dosyalariGetir() {
+            fetch('/api/files/list', { cache: 'no-store' })
+                .then(response => response.json())
+                .then(data => {
+                    tumDosyalar = data;
+                    tabloyuCiz(aktifKlasor);
+                })
+                .catch(error => {
+                    console.error('Liste alınırken hata oluştu:', error);
+                    document.getElementById('fileTableBody').innerHTML = '<tr><td colspan="4" style="color:red;">Veriler çekilirken bir hata oluştu!</td></tr>';
+                });
+        }
+
+        function tabloyuCiz(arananKlasor) {
+            const tabloGovdesi = document.getElementById('fileTableBody');
+            tabloGovdesi.innerHTML = '';
+
+            if (tumDosyalar.length === 0) {
+                tabloGovdesi.innerHTML = '<tr><td colspan="4">Herhangi bir dosyanız bulunmamaktadır.</td></tr>';
+                return;
+            }
+
+            if (arananKlasor !== "") {
+                let ustKlasor = arananKlasor.includes('/') ? arananKlasor.substring(0, arananKlasor.lastIndexOf('/')) : "";
+
+                tabloGovdesi.innerHTML += `
+                <tr onclick="klasoreGir('${ustKlasor}')" style="cursor: pointer; background-color: #2f2f2fcf;">
+                    <td colspan="4"><i class="fa-solid fa-level-up-alt" style="margin-right: 8px;"></i> <b>.. Üst Klasöre Dön</b></td>
+                </tr>`;
+            }
+
+            let gosterilenKlasorler = new Set();
+
+            tumDosyalar.forEach(file => {
+                let yol = file.klasoryolu || file.klasorYolu || "";
+
+                if (arananKlasor === "") {
+                    //ana klasör
+                    if (!yol.includes("/")) {
+                        tabloGovdesi.innerHTML += dosyatarzi(file);
+                    } else {
+                        let klasorAdi = yol.split('/')[0];
+                        if (!gosterilenKlasorler.has(klasorAdi)) {
+                            gosterilenKlasorler.add(klasorAdi);
+                            let klasorTarihi = file.uploadDate ? new Date(file.uploadDate).toLocaleString('tr-TR') : '-';
+                            tabloGovdesi.innerHTML += klasoryoluret(klasorAdi, klasorAdi, klasorTarihi);
+                        }
+                    }
+                } else {
+                    // klasör içi
+                    if (yol.startsWith(arananKlasor + "/")) {
+                        let kalanYol = yol.substring(arananKlasor.length + 1);
+
+                        if (!kalanYol.includes("/")) {
+                            // eğer dosyanın adı keep ise gizli tut
+                            if (file.fileName !== ".keep") {
+                                tabloGovdesi.innerHTML += dosyatarzi(file);
+                            }
+                        } else {
+                            let altKlasorAdi = kalanYol.split('/')[0];
+                            let tamAltKlasorYolu = arananKlasor + "/" + altKlasorAdi;
+                            if (!gosterilenKlasorler.has(tamAltKlasorYolu)) {
+                                gosterilenKlasorler.add(tamAltKlasorYolu);
+                                let altKlasorTarihi = file.uploadDate ? new Date(file.uploadDate).toLocaleString('tr-TR') : '-';
+                                tabloGovdesi.innerHTML += klasoryoluret(tamAltKlasorYolu, altKlasorAdi, altKlasorTarihi);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function klasoreGir(hedefKlasorYolu) {
+            aktifKlasor = hedefKlasorYolu;
+            tabloyuCiz(aktifKlasor);
+        }
+
+        function klasoryoluret(tamYol, gosterilenAd, tarih) {
+            return `<tr onclick="klasoreGir('${tamYol}')" style="cursor: pointer;">
+                <td><i class="fa-solid fa-folder" style="color: #ffc107; margin-right: 8px;"></i> <b>${gosterilenAd}</b></td>
+                <td>-</td>
+                <td>${tarih ? tarih : '-'}</td>
+                <td>
+                    <button class="btn-delete" onclick="event.stopPropagation(); klasorCope('${tamYol}')">
+                        <i class="fa-solid fa-trash-can"></i> Çöp kutusuna taşı
+                    </button>
+                </td>
+            </tr>`;
+        }
+
+        function dosyatarzi(file) {
+            const boyutKB = (file.fileSize / 1024).toFixed(2);
+            const tarih = new Date(file.uploadDate).toLocaleString('tr-TR');
+
+            let uzanti = file.fileName.split('.').pop().toLowerCase();
+            let ikon = '<i class="fas fa-file" style="color: #6c757d; margin-right: 8px;"></i>';
+
+            if (['png', 'jpg', 'jpeg', 'gif', 'svg'].includes(uzanti)) {
+                ikon = '<i class="fas fa-file-image" style="margin-right: 8px;"></i>';
+            } else if (uzanti === 'txt') {
+                ikon = '<i class="fa-solid fa-file-lines" style="margin-right: 8px;"></i>';
+            } else if (uzanti === 'pdf') {
+                ikon = '<i class="fas fa-file-pdf" style="margin-right: 8px;"></i>';
+            } else if (['zip', 'rar', 'tar', '7z'].includes(uzanti)) {
+                ikon = '<i class="fa-solid fa-file-zipper" style="margin-right: 8px;"></i>';
+            } else if (['doc', 'docx'].includes(uzanti)) {
+                ikon = '<i class="fas fa-file-word" style="margin-right: 8px;"></i>';
+            }
+
+            return `<tr>
+                <td>${ikon} <a href="/api/files/view/${file.id}" target="_blank" style="color: #007bff;">${file.fileName}</a></td>
+                <td>${boyutKB} KB</td>
+                <td>${tarih}</td>
+                <td>
+                    <button class="btn-delete" onclick="dosyaSil(${file.id})">
+                        <i class="fa-solid fa-trash-can"></i> Çöp kutusuna taşı
+                    </button>
+                </td>
+            </tr>`;
+        }
+
+        function dosyaSil(id) {
+            Swal.fire({
+                title: 'Dosyanızı çöp kutusuna taşıyorsunuz.',
+                text: "Dosyayı daha sonra çöp kutusundan kurtarabilirsiniz.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#000000',
+                confirmButtonText: 'Evet, Taşı',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/files/delete/${id}`, {
+                        method: 'DELETE'
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: 'Taşındı!',
+                                    text: 'Dosya çöp kutusuna taşındı.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#000000'
+                                });
+                                dosyalariGetir();
+                            } else {
+                                Swal.fire(
+                                    'Hata!',
+                                    'Dosya taşınırken bir sorun oluştu.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => console.error('Hata:', error));
+                }
+            });
+        }
+        function dosyalarımbutonu() {
+            document.getElementById('driveAlani').style.display = 'block';
+            document.getElementById('copKutusuAlani').style.display = 'none';
+            dosyalariGetir();
+        }
+
+        let coptekiDosyalar = [];
+        let aktifCopKlasor = "";
+        function copKutusubutonu() {
+            document.getElementById('driveAlani').style.display = 'none';
+            document.getElementById('copKutusuAlani').style.display = 'block';
+            aktifCopKlasor = "";
+            coptekiDosyalariGetir();
+        }
+
+        function coptekiDosyalariGetir() {
+            fetch('/api/files/bin-list', { cache: 'no-store' })
+                .then(response => response.json())
+                .then(data => {
+                    coptekiDosyalar = data;
+                    copTablosunuCiz(aktifCopKlasor);
+                })
+                .catch(error => console.error(error));
+        }
+
+        function copTablosunuCiz(arananKlasor) {
+            const tbody = document.getElementById('binTableBody');
+            tbody.innerHTML = '';
+
+            if (coptekiDosyalar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Çöp kutusu boş.</td></tr>';
+                return;
+            }
+
+            let silinenKlasorler = new Set();
+            coptekiDosyalar.forEach(file => {
+                let yol = file.klasoryolu || file.klasorYolu || "";
+                if (file.fileName === ".keep" && yol.endsWith("/.keep")) {
+                    silinenKlasorler.add(yol.substring(0, yol.length - 6));
+                }
+            });
+
+            // silinmiş en üst klasörü bulur ben dosya sildiğimde çöp kutusunda kendi adında file oluşturuyordu bu düzeltti
+            function getTopmostDeletedFolder(yol) {
+                if (!yol) return null;
+                let parts = yol.split('/');
+                let checkPath = "";
+                for (let i = 0; i < parts.length; i++) {
+                    checkPath = checkPath === "" ? parts[i] : checkPath + "/" + parts[i];
+                    if (silinenKlasorler.has(checkPath)) {
+                        return checkPath;
+                    }
+                }
+                return null;
+            }
+
+            // üst klasöre dön
+            if (arananKlasor !== "") {
+                let ustKlasor = "";
+                if (arananKlasor.includes('/')) {
+                    let normalUst = arananKlasor.substring(0, arananKlasor.lastIndexOf('/'));
+                    if (silinenKlasorler.has(normalUst)) {
+                        ustKlasor = normalUst;
+                    }
+                }
+                tbody.innerHTML += `
+                <tr onclick="copKlasoreGir('${ustKlasor}')" style="cursor: pointer; background-color: #2f2f2fcf;">
+                    <td colspan="3"><i class="fa-solid fa-level-up-alt" style="margin-right: 8px;"></i> <b>.. Üst Klasöre Dön</b></td>
+                </tr>`;
+            }
+
+            let gosterilenKlasorler = new Set();
+            let dosyaCizildiMi = false;
+
+            // ./keep temizleme
+            coptekiDosyalar.forEach(file => {
+                let orjinalYol = file.klasoryolu || file.klasorYolu || "";
+                let fileYol = orjinalYol;
+
+                if (file.fileName === ".keep" && fileYol.endsWith("/.keep")) {
+                    fileYol = fileYol.substring(0, fileYol.length - 6);
+                }
+
+                let topmost = getTopmostDeletedFolder(fileYol);
+
+                if (arananKlasor === "") {
+                    if (topmost === null) {
+                        if (file.fileName !== ".keep") {
+                            tbody.innerHTML += copDosyaTarzi(file);
+                            dosyaCizildiMi = true;
+                        }
+                    } else {
+                        if (!gosterilenKlasorler.has(topmost)) {
+                            gosterilenKlasorler.add(topmost);
+                            let gosterilenAd = topmost.includes('/') ? topmost.substring(topmost.lastIndexOf('/') + 1) : topmost;
+                            let klasorTarihi = file.uploadDate ? new Date(file.deleteDate).toLocaleString('tr-TR') : '-';
+                            tbody.innerHTML += copKlasorYolUret(topmost, gosterilenAd, klasorTarihi);
+                            dosyaCizildiMi = true;
+                        }
+                    }
+                } else {
+                    // çöpte klasörün içi
+                    if (topmost !== null && fileYol.startsWith(arananKlasor)) {
+                        if (fileYol === arananKlasor) {
+                            if (file.fileName !== ".keep") {
+                                tbody.innerHTML += copDosyaTarzi(file);
+                                dosyaCizildiMi = true;
+                            }
+                        } else if (fileYol.startsWith(arananKlasor + "/")) {
+                            let kalanYol = fileYol.substring(arananKlasor.length + 1);
+
+                            // / yoksa direkt dosya 
+                            if (!kalanYol.includes("/")) {
+                                if (file.fileName !== ".keep") {
+                                    tbody.innerHTML += copDosyaTarzi(file);
+                                    dosyaCizildiMi = true;
+                                }
+                            } else {
+                                // / varsa klasör çiz
+                                let altKlasorAdi = kalanYol.split('/')[0];
+                                let tamAltKlasorYolu = arananKlasor + "/" + altKlasorAdi;
+
+                                if (!gosterilenKlasorler.has(tamAltKlasorYolu)) {
+                                    gosterilenKlasorler.add(tamAltKlasorYolu);
+                                    let klasorTarihi = file.uploadDate ? new Date(file.deleteDate).toLocaleString('tr-TR') : '-';
+                                    tbody.innerHTML += copKlasorYolUret(tamAltKlasorYolu, altKlasorAdi, klasorTarihi);
+                                    dosyaCizildiMi = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (!dosyaCizildiMi && arananKlasor !== "") {
+                tbody.innerHTML += '<tr><td colspan="3" style="text-align:center; color:#6c757d; font-style:italic;">Bu klasör boş.</td></tr>';
+            }
+        }
+
+        // çöpte klasöre girme 
+        function copKlasoreGir(hedefKlasorYolu) {
+            aktifCopKlasor = hedefKlasorYolu;
+            copTablosunuCiz(aktifCopKlasor);
+        }
+
+        // klasör sil kurtar
+        function copKlasorYolUret(tamYol, gosterilenAd, tarih) {
+            return `<tr onclick="copKlasoreGir('${tamYol}')" style="cursor: pointer;">
+                <td><i class="fa-solid fa-folder" style="color: #ffc107; margin-right: 8px;"></i> <b>${gosterilenAd}</b></td>
+                <td>${tarih ? tarih : '-'}</td>
+                <td>
+                    <button onclick="event.stopPropagation(); klasoruGeriYukle('${tamYol}')" style="background-color: #ffffff; color: black; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer;">
+                        <i class="fa-solid fa-arrow-rotate-right"></i> Kurtar
+                    </button>
+                    <button onclick="event.stopPropagation(); klasoruKaliciSil('${tamYol}')" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px;">
+                        <i class="fa-solid fa-xmark"></i> Sil
+                    </button>
+                </td>
+            </tr>`;
+        }
+
+        function copDosyaTarzi(file) {
+            const silinmeTarihi = file.deleteDate ? new Date(file.deleteDate).toLocaleString('tr-TR') : 'Bilinmiyor';
+            let uzanti = file.fileName.split('.').pop().toLowerCase();
+            let ikon = '<i class="fas fa-file" style="color: #6c757d; margin-right: 8px;"></i>';
+
+            if (['png', 'jpg', 'jpeg', 'gif', 'svg'].includes(uzanti)) {
+                ikon = '<i class="fas fa-file-image" style="margin-right: 8px;"></i>';
+            } else if (uzanti === 'txt') {
+                ikon = '<i class="fa-solid fa-file-lines" style="margin-right: 8px;"></i>';
+            } else if (uzanti === 'pdf') {
+                ikon = '<i class="fas fa-file-pdf" style="margin-right: 8px;"></i>';
+            } else if (['zip', 'rar', 'tar', '7z'].includes(uzanti)) {
+                ikon = '<i class="fa-solid fa-file-zipper" style="margin-right: 8px;"></i>';
+            } else if (['doc', 'docx'].includes(uzanti)) {
+                ikon = '<i class="fas fa-file-word" style="margin-right: 8px;"></i>';
+            }
+
+            return `<tr>
+                <td>
+                    ${ikon}
+                    <a href="/api/files/view/${file.id}" target="_blank" style="color: #007bff;">${file.fileName}</a>
+                </td>
+                <td>${silinmeTarihi}</td>
+                <td>
+                    <button onclick="event.stopPropagation(); dosyayiGeriYukle(${file.id})" style="background-color: #ffffff; color: black; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer;">
+                        <i class="fa-solid fa-arrow-rotate-right"></i> Kurtar
+                    </button>
+                    <button onclick="event.stopPropagation(); kaliciSil(${file.id})" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; margin-left: 5px;">
+                        <i class="fa-solid fa-xmark"></i> Sil
+                    </button>
+                </td>
+            </tr>`;
+        }
+
+        function dosyayiGeriYukle(id) {
+            fetch(`/api/files/restore`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json' // javaya json gönderdidiğine dair haber
+                },
+                body: JSON.stringify({ id: id })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Geri Yüklendi!',
+                            text: 'Dosya başarıyla Dosyalarım alanına taşındı.',
+                            icon: 'success',
+                            confirmButtonColor: '#28a745',
+
+                        });
+                        coptekiDosyalariGetir();
+                    } else {
+                        Swal.fire('Hata!', 'Dosya geri yüklenirken bir sorun oluştu.', 'error');
+                    }
+                })
+                .catch(error => console.error('Hata:', error));
+        }
+
+        function kaliciSil(id) {
+            Swal.fire({
+                title: 'Kalıcı olarak silinsin mi?',
+                text: "Bu işlem geri alınamaz!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Evet, kalıcı olarak sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/files/force-delete/${id}`, {
+                        method: 'DELETE'
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: 'Silindi!',
+                                    text: 'Dosya kalıcı olarak silindi.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#212529',
+                                    confirmButtonText: 'Tamam'
+                                });
+                                coptekiDosyalariGetir();
+                            }
+                        })
+                        .catch(error => console.error('Hata:', error));
+                }
+            });
+        }
+
+        function yeniklasor() {
+            Swal.fire({
+                title: 'Yeni Klasör Oluştur',
+                input: 'text',
+                inputPlaceholder: 'Klasör adını girin...',
+                showCancelButton: true,
+                confirmButtonText: 'Oluştur',
+                cancelButtonText: 'İptal',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#000000',
+                inputValidator: (value) => {
+                    if (!value) { return 'Klasör adı boş olamaz!' }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let folderName = result.value.trim();
+                    let formData = new FormData();
+                    formData.append("folderName", folderName);
+                    formData.append("currentPath", aktifKlasor);
+
+                    fetch('/api/files/create-folder', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.text())
+                        .then(mesaj => {
+                            dosyalariGetir(); // listeyi yenile
+                        })
+                        .catch(error => console.error('Hata:', error));
+                }
+            });
+        }
+
+        function klasorCope(klasorYolu) {
+            Swal.fire({
+                title: 'Klasörünüzü çöp kutusuna taşıyorsunuz.',
+                text: "Klasörünüzü(ve içindeki tüm dosyaları) daha sonra çöp kutusundan kurtarabilirsiniz.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#000000',
+                confirmButtonText: 'Evet, Taşı',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    fetch(`/api/files/delete-folder?folderPath=${encodeURIComponent(klasorYolu)}`, {
+                        method: 'DELETE'
+                    })
+                        .then(response => response.text())
+                        .then(mesaj => {
+                            Swal.fire({
+                                title: 'Silindi!',
+                                text: mesaj,
+                                icon: 'success',
+                                confirmButtonColor: '#000000'
+                            });
+                            dosyalariGetir();
+                        })
+                        .catch(error => console.error('Hata:', error));
+                }
+            });
+        }
+
+        function klasoruGeriYukle(klasorYolu) {
+            fetch(`/api/files/restore-folder?folderPath=${encodeURIComponent(klasorYolu)}`, {
+                method: 'PUT'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Geri Yüklendi!',
+                            text: 'Klasör ve içindeki her şey başarıyla Dosyalarım alanına taşındı.',
+                            icon: 'success',
+                            confirmButtonColor: '#28a745'
+                        });
+                        coptekiDosyalariGetir(); // çöp kutusunu yenile
+                    } else {
+                        Swal.fire('Hata!', 'Klasör geri yüklenirken bir sorun oluştu.', 'error');
+                    }
+                })
+                .catch(error => console.error('Hata:', error));
+        }
+
+        function klasoruKaliciSil(klasorYolu) {
+            Swal.fire({
+                title: 'Klasör kalıcı olarak silinsin mi?',
+                text: "Bu klasör ve içindeki tüm dosyalar tamamen yok edilecek. Bu işlem geri alınamaz!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Evet, kalıcı olarak sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/files/force-delete-folder?folderPath=${encodeURIComponent(klasorYolu)}`, {
+                        method: 'DELETE'
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: 'Silindi!',
+                                    text: 'Klasör kalıcı olarak silindi.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#212529'
+                                });
+                                coptekiDosyalariGetir();
+                            }
+                        })
+                        .catch(error => console.error('Hata:', error));
+                }
+            });
+        }
+    </script>
+</body>
+
+
+</html>
