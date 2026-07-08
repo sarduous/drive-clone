@@ -1,4 +1,4 @@
-# ☁️ Drive Clone (File Management System)
+# ☁️ File Management System
 
 This project is a web-based clone of a cloud file management system similar to Google Drive. It allows users to upload files and folders, create new folders, view their data in a hierarchical structure, and perform safe deletion operations using a trash bin mechanism.
 
